@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy - Keep Score: Tennis</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="manifest" href="site.webmanifest">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=Quicksand:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --nav-green: #104816;
+      --nav-height: 64px;
+    }
+
+    body {
+      font-family: 'Quicksand', sans-serif;
+      background: #ffffff;
+      color: #2a3a2c;
+      min-height: 100vh;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    /* ── NAV ── */
+    nav {
+      background: var(--nav-green);
+      height: var(--nav-height);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.35);
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .nav-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.1);
+      display: block;
+    }
+
+    .nav-logo-text {
+      font-family: 'Nunito', sans-serif;
+      font-weight: 900;
+      font-size: 1.25rem;
+      color: #ffffff;
+      letter-spacing: 0.5px;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+
+    .nav-right a {
+      font-family: 'Quicksand', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.88);
+      text-decoration: none;
+      letter-spacing: 0.3px;
+      transition: color 0.2s;
+    }
+
+    .nav-right a:hover {
+      color: #ffffff;
+    }
+
+    .nav-right a.active {
+      color: #ffffff;
+      border-bottom: 2px solid rgba(255,255,255,0.6);
+      padding-bottom: 2px;
+    }
+
+    /* ── HAMBURGER ── */
+    .hamburger {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 8px;
+      margin-right: -8px;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .hamburger svg {
+      display: block;
+    }
+
+    /* ── MOBILE DRAWER ── */
+    .drawer-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(0,0,0,0.5);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+
+    .drawer-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 260px;
+      max-width: 80vw;
+      background: var(--nav-green);
+      z-index: 201;
+      transform: translateX(100%);
+      transition: transform 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      padding-top: 20px;
+    }
+
+    .drawer.open {
+      transform: translateX(0);
+    }
+
+    .drawer-close {
+      align-self: flex-end;
+      background: none;
+      border: none;
+      padding: 16px 20px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .drawer-close svg {
+      display: block;
+    }
+
+    .drawer-links {
+      display: flex;
+      flex-direction: column;
+      padding: 12px 0;
+    }
+
+    .drawer-links a {
+      font-family: 'Quicksand', sans-serif;
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: rgba(255,255,255,0.88);
+      text-decoration: none;
+      padding: 16px 28px;
+      transition: background 0.15s;
+    }
+
+    .drawer-links a:hover,
+    .drawer-links a:active {
+      background: rgba(255,255,255,0.1);
+      color: #ffffff;
+    }
+
+    .drawer-links a.active {
+      color: #ffffff;
+      background: rgba(255,255,255,0.08);
+      border-left: 3px solid rgba(255,255,255,0.6);
+    }
+
+    /* ── POLICY CONTENT ── */
+    .policy-wrap {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 56px 24px 100px;
+    }
+
+    .policy-wrap h1 {
+      font-family: 'Nunito', sans-serif;
+      font-weight: 900;
+      font-size: 2.2rem;
+      color: #0e2e12;
+      margin-bottom: 8px;
+    }
+
+    .effective-date {
+      font-size: 0.9rem;
+      color: #7a9a7e;
+      margin-bottom: 48px;
+      font-weight: 500;
+    }
+
+    .policy-wrap h2 {
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: #104816;
+      margin-top: 40px;
+      margin-bottom: 12px;
+    }
+
+    .policy-wrap p {
+      font-size: 0.975rem;
+      line-height: 1.75;
+      color: #3a4e3c;
+      margin-bottom: 14px;
+      font-weight: 500;
+    }
+
+    .policy-wrap ul {
+      list-style: none;
+      margin: 0 0 14px 0;
+      padding: 0;
+    }
+
+    .policy-wrap ul li {
+      font-size: 0.975rem;
+      line-height: 1.75;
+      color: #3a4e3c;
+      font-weight: 500;
+      padding-left: 20px;
+      position: relative;
+      margin-bottom: 6px;
+    }
+
+    .policy-wrap ul li::before {
+      content: '\2022';
+      color: #104816;
+      position: absolute;
+      left: 0;
+      font-weight: 900;
+    }
+
+    a.policy-link {
+      color: #104816;
+      font-weight: 700;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid #e0ece1;
+      margin: 40px 0 0;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--nav-green);
+      color: rgba(255,255,255,0.7);
+      padding: 32px 24px;
+      text-align: center;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+
+    footer a {
+      color: rgba(255,255,255,0.88);
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    footer a:hover {
+      color: #ffffff;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 640px) {
+      .nav-right {
+        display: none;
+      }
+      .hamburger {
+        display: block;
+      }
+      .policy-wrap {
+        padding: 32px 18px 80px;
+      }
+      .policy-wrap h1 {
+        font-size: 1.75rem;
+      }
+      .footer-links {
+        gap: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a class="nav-left" href="/">
+      <img class="nav-icon" src="icon.png" alt="Keep Score icon" />
+      <span class="nav-logo-text">Keep Score</span>
+    </a>
+    <div class="nav-right">
+      <a href="/">Home</a>
+      <a href="ratings">Ratings</a>
+      <a href="privacy" class="active">Privacy</a>
+    </div>
+    <button class="hamburger" aria-label="Open menu" onclick="openDrawer()">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </nav>
+
+  <!-- Mobile drawer -->
+  <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+  <div class="drawer" id="drawer">
+    <button class="drawer-close" aria-label="Close menu" onclick="closeDrawer()">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+    </button>
+    <div class="drawer-links">
+      <a href="/">Home</a>
+      <a href="ratings">Ratings</a>
+      <a href="privacy" class="active">Privacy</a>
+      <a href="mailto:evan@forourschool.org">Contact</a>
+    </div>
+  </div>
+
+  <main>
+    <div class="policy-wrap">
+
+      <h1>Privacy Policy</h1>
+      <p class="effective-date">Last updated: April 25, 2026</p>
+
+      <p>
+        This Privacy Policy describes how <strong>On The Vine Media, LLC</strong> ("we," "us," or "our"), based in New York, collects, uses, and shares information when you use <strong>Keep Score: Tennis</strong> (the "App") on your mobile device. By downloading or using the App, you agree to the practices described in this policy.
+      </p>
+
+      <h2>1. Our Privacy Principles</h2>
+      <p>Keep Score is built around privacy. These principles guide every decision we make:</p>
+      <ul>
+        <li><strong>Private by default.</strong> There are no public profiles, no leaderboards, and no way for other users to discover you.</li>
+        <li><strong>No account required.</strong> You can use the App without creating an account. Matches are stored on your device.</li>
+        <li><strong>No user-uploaded photos.</strong> We never collect biometric data or images of any kind.</li>
+      </ul>
+
+      <h2>2. Information We Collect</h2>
+
+      <p><strong>Information you provide:</strong></p>
+      <ul>
+        <li><strong>Account information</strong> - If you choose to sign in, we receive your name and email from Apple or Google Sign-In. We use this to create your account.</li>
+        <li><strong>Display name</strong> - You choose a display name visible to other players in your matches.</li>
+        <li><strong>Match data</strong> - Scores, player names, and match history that you log in the App.</li>
+      </ul>
+
+      <p><strong>Information collected automatically:</strong></p>
+      <ul>
+        <li><strong>Device information</strong> - Device model, operating system version, and app version for crash reporting and compatibility.</li>
+        <li><strong>Usage data</strong> - Basic analytics about app usage patterns to help us improve the experience. We do not track individual gameplay behavior.</li>
+      </ul>
+
+      <h2>3. How We Use Your Information</h2>
+      <p>We use the information we collect to:</p>
+      <ul>
+        <li>Provide the App's core features: match logging, multiplayer joining, and skill ratings.</li>
+        <li>Sync your match data across devices when you sign in.</li>
+        <li>Calculate and update your private Glicko-2 skill rating.</li>
+        <li>Identify and fix bugs and crashes.</li>
+        <li>Improve the App based on aggregate usage patterns.</li>
+      </ul>
+
+      <h2>4. What We Do Not Do</h2>
+      <ul>
+        <li>We do not sell your personal information.</li>
+        <li>We do not serve advertisements.</li>
+        <li>We do not share your data with third-party analytics services that use personal identifiers.</li>
+        <li>We do not create public profiles or make your information discoverable by other users.</li>
+        <li>We do not collect or store user-uploaded photos or images.</li>
+      </ul>
+
+      <h2>5. Third-Party Services</h2>
+      <p>We use the following services to operate the App:</p>
+      <ul>
+        <li>
+          <strong>Supabase</strong> - Cloud database and authentication. Your match data and account information are stored securely on Supabase's infrastructure.
+          <a class="policy-link" href="https://supabase.com/privacy" target="_blank" rel="noopener noreferrer">Supabase Privacy Policy</a>
+        </li>
+        <li>
+          <strong>Apple Sign-In / Google Sign-In</strong> - Authentication providers. We receive only the information you authorize during sign-in.
+        </li>
+        <li>
+          <strong>Apple App Store / Google Play</strong> - For in-app purchases (Supporter subscriptions). Purchase transactions are handled entirely by Apple or Google.
+        </li>
+      </ul>
+
+      <h2>6. Data Sharing</h2>
+      <p>Your match data is shared only with the other players in each match. Specifically:</p>
+      <ul>
+        <li>Players in a match can see the display names, avatars, and supporter ribbons of other players in that same match.</li>
+        <li>Your rating is visible only to you.</li>
+        <li>No one outside of your matches can see your information.</li>
+      </ul>
+
+ 	  <h2>7. Data Retention and Deletion</h2>
+	  <p>
+		Because your matches are part of other players' records, full deletion of match
+		history is not possible. You can reset your rating and match history at any time
+		from settings, which removes them from your view. You can also close your account
+		at any time from settings. When you close your account:
+	  </p>
+	  <ul>
+	    <li>Your profile and display name are anonymized.</li>
+	    <li>Your player slots in other users' games are anonymized.</li>
+	    <li>Local data on your device is cleared.</li>
+  	  </ul>
+
+      <h2>8. Children's Privacy</h2>
+      <p>
+        Keep Score: Tennis is intended for a general audience and is not directed at children under the age of 13. We do not knowingly collect personal information from children under 13. If you believe a child has provided us with personal information, please contact us and we will delete it.
+      </p>
+
+      <h2>9. Your Rights</h2>
+      <p>Depending on your location, you may have the right to:</p>
+      <ul>
+        <li>Access the data we hold about you.</li>
+        <li>Request correction or deletion of your data.</li>
+        <li>Anonymize your account.</li>
+      </ul>
+      <p>California residents may have additional rights under the CCPA. Please contact us for more information.</p>
+
+      <h2>10. Data Security</h2>
+      <p>
+        We use industry-standard security measures including row-level security policies, encrypted connections, and secure authentication tokens. However, no method of electronic storage is completely secure, and we cannot guarantee absolute security.
+      </p>
+
+      <h2>11. Changes to This Policy</h2>
+      <p>
+        We may update this Privacy Policy from time to time. When we do, we will revise the "Last updated" date at the top. Continued use of the App after changes are posted constitutes your acceptance of the updated policy.
+      </p>
+
+      <h2>12. Contact Us</h2>
+      <p>
+        If you have questions about this Privacy Policy or your data, contact us at:
+      </p>
+      <p>
+        <strong>On The Vine Media, LLC</strong><br />
+        New York, NY<br />
+        Email: <a class="policy-link" href="mailto:evan@forourschool.org">evan@forourschool.org</a>
+      </p>
+
+      <hr class="divider" />
+
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="ratings">How Ratings Work</a>
+      <a href="privacy">Privacy Policy</a>
+    </div>
+    <p>&copy; <span id="year"></span> On The Vine Media, LLC. All rights reserved.</p>
+  </footer>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+    function openDrawer() {
+      document.getElementById('drawer').classList.add('open');
+      document.getElementById('drawerOverlay').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeDrawer() {
+      document.getElementById('drawer').classList.remove('open');
+      document.getElementById('drawerOverlay').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+  </script>
+</body>
+</html>

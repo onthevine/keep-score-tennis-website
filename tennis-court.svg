@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 760" width="600" height="760" role="img" aria-label="Tennis court as drawn in the Keep Score app">
+  <title>Keep Score tennis court</title>
+  <!--
+    Mirrors components/TennisCourt.tsx in the app: green surround, blue
+    playing rectangle, white lines, dark net across the middle. Proportions
+    come from the same constants (service lines at 0.21 of the inner height
+    from the net, singles sidelines inset 0.11 of the inner width).
+    Redrawing it by eye would show, since the two sit side by side.
+  -->
+  <defs>
+    <clipPath id="round"><rect x="0" y="0" width="600" height="760" rx="28" /></clipPath>
+  </defs>
+
+  <g clip-path="url(#round)">
+    <rect x="0" y="0" width="600" height="760" fill="#537D45" />
+    <rect x="40" y="40" width="520" height="680" fill="#3F76B0" />
+
+    <g fill="#FFFFFF">
+      <!-- Baselines -->
+      <rect x="40" y="40" width="520" height="8" />
+      <rect x="40" y="712" width="520" height="8" />
+      <!-- Doubles sidelines -->
+      <rect x="40" y="40" width="8" height="680" />
+      <rect x="552" y="40" width="8" height="680" />
+      <!-- Singles sidelines -->
+      <rect x="97" y="40" width="8" height="680" />
+      <rect x="495" y="40" width="8" height="680" />
+      <!-- Service lines, spanning the singles court -->
+      <rect x="97" y="237" width="406" height="8" />
+      <rect x="97" y="515" width="406" height="8" />
+      <!-- Center service line -->
+      <rect x="296" y="237" width="8" height="286" />
+      <!-- Baseline center marks -->
+      <rect x="296" y="40" width="8" height="26" />
+      <rect x="296" y="694" width="8" height="26" />
+    </g>
+
+    <!-- Net, drawn over the court the way the app layers it -->
+    <rect x="0" y="376" width="600" height="9" fill="#1A1A1A" />
+
+    <!-- Optic ball, the app's primary action -->
+    <circle cx="300" cy="380" r="34" fill="#E9F75E" stroke="#1A1A1A" stroke-width="4" />
+    <path d="M272 362 q28 18 56 0" fill="none" stroke="#1A1A1A" stroke-width="3" stroke-linecap="round" opacity="0.55" />
+    <path d="M272 398 q28 -18 56 0" fill="none" stroke="#1A1A1A" stroke-width="3" stroke-linecap="round" opacity="0.55" />
+  </g>
+</svg>

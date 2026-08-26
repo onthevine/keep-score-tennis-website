@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>How Ratings Work - Keep Score: Tennis</title>
+  <meta name="description" content="How Keep Score calculates your private Glicko-2 tennis skill rating. Plain-English explanation with technical details." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="manifest" href="site.webmanifest">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=Quicksand:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --nav-green: #104816;
+      --nav-height: 64px;
+    }
+
+    body {
+      font-family: 'Quicksand', sans-serif;
+      background: #ffffff;
+      color: #2a3a2c;
+      min-height: 100vh;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    /* ── NAV ── */
+    nav {
+      background: var(--nav-green);
+      height: var(--nav-height);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.35);
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .nav-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.1);
+      display: block;
+    }
+
+    .nav-logo-text {
+      font-family: 'Nunito', sans-serif;
+      font-weight: 900;
+      font-size: 1.25rem;
+      color: #ffffff;
+      letter-spacing: 0.5px;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+
+    .nav-right a {
+      font-family: 'Quicksand', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.88);
+      text-decoration: none;
+      letter-spacing: 0.3px;
+      transition: color 0.2s;
+    }
+
+    .nav-right a:hover {
+      color: #ffffff;
+    }
+
+    .nav-right a.active {
+      color: #ffffff;
+      border-bottom: 2px solid rgba(255,255,255,0.6);
+      padding-bottom: 2px;
+    }
+
+    /* ── HAMBURGER ── */
+    .hamburger {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 8px;
+      margin-right: -8px;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .hamburger svg {
+      display: block;
+    }
+
+    /* ── MOBILE DRAWER ── */
+    .drawer-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(0,0,0,0.5);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+
+    .drawer-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 260px;
+      max-width: 80vw;
+      background: var(--nav-green);
+      z-index: 201;
+      transform: translateX(100%);
+      transition: transform 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      padding-top: 20px;
+    }
+
+    .drawer.open {
+      transform: translateX(0);
+    }
+
+    .drawer-close {
+      align-self: flex-end;
+      background: none;
+      border: none;
+      padding: 16px 20px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .drawer-close svg {
+      display: block;
+    }
+
+    .drawer-links {
+      display: flex;
+      flex-direction: column;
+      padding: 12px 0;
+    }
+
+    .drawer-links a {
+      font-family: 'Quicksand', sans-serif;
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: rgba(255,255,255,0.88);
+      text-decoration: none;
+      padding: 16px 28px;
+      transition: background 0.15s;
+    }
+
+    .drawer-links a:hover,
+    .drawer-links a:active {
+      background: rgba(255,255,255,0.1);
+      color: #ffffff;
+    }
+
+    .drawer-links a.active {
+      color: #ffffff;
+      background: rgba(255,255,255,0.08);
+      border-left: 3px solid rgba(255,255,255,0.6);
+    }
+
+    /* ── CONTENT ── */
+    .content-wrap {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 56px 24px 100px;
+    }
+
+    .content-wrap h1 {
+      font-family: 'Nunito', sans-serif;
+      font-weight: 900;
+      font-size: 2.2rem;
+      color: #0e2e12;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      font-size: 1.05rem;
+      color: #7a9a7e;
+      margin-bottom: 48px;
+      font-weight: 500;
+      line-height: 1.6;
+    }
+
+    .content-wrap h2 {
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 1.6rem;
+      color: #104816;
+      margin-top: 48px;
+      margin-bottom: 14px;
+    }
+
+    .content-wrap h3 {
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 1.35rem;
+      color: #104816;
+      margin-top: 48px;
+      margin-bottom: 14px;
+    }
+
+    .content-wrap h4 {
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: #2a5a30;
+      margin-top: 28px;
+      margin-bottom: 10px;
+    }
+
+    .content-wrap p {
+      font-size: 0.975rem;
+      line-height: 1.75;
+      color: #3a4e3c;
+      margin-bottom: 14px;
+      font-weight: 500;
+    }
+
+    .content-wrap ul, .content-wrap ol {
+      list-style: none;
+      margin: 0 0 14px 0;
+      padding: 0;
+    }
+
+    .content-wrap ul li, .content-wrap ol li {
+      font-size: 0.975rem;
+      line-height: 1.75;
+      color: #3a4e3c;
+      font-weight: 500;
+      padding-left: 20px;
+      position: relative;
+      margin-bottom: 6px;
+    }
+
+    .content-wrap ul li::before {
+      content: '\2022';
+      color: #104816;
+      position: absolute;
+      left: 0;
+      font-weight: 900;
+    }
+
+    .content-wrap ol {
+      counter-reset: item;
+    }
+
+    .content-wrap ol li::before {
+      counter-increment: item;
+      content: counter(item) '.';
+      color: #104816;
+      position: absolute;
+      left: 0;
+      font-weight: 700;
+    }
+
+    .callout {
+      background: #f4f8f4;
+      border-left: 4px solid #104816;
+      border-radius: 0 8px 8px 0;
+      padding: 20px 24px;
+      margin: 20px 0 24px;
+    }
+
+    .callout p {
+      margin-bottom: 0;
+      color: #2a5a30;
+    }
+
+    .callout p + p {
+      margin-top: 10px;
+    }
+
+    .table-scroll {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin: 16px 0 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.925rem;
+      min-width: 400px;
+    }
+
+    th {
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      text-align: left;
+      color: #104816;
+      padding: 10px 14px;
+      border-bottom: 2px solid #d0e0d2;
+      background: #f4f8f4;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 10px 14px;
+      border-bottom: 1px solid #e8f0e8;
+      color: #3a4e3c;
+      font-weight: 500;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid #e0ece1;
+      margin: 48px 0 0;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--nav-green);
+      color: rgba(255,255,255,0.7);
+      padding: 32px 24px;
+      text-align: center;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+
+    footer a {
+      color: rgba(255,255,255,0.88);
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    footer a:hover {
+      color: #ffffff;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 640px) {
+      .nav-right {
+        display: none;
+      }
+      .hamburger {
+        display: block;
+      }
+      .content-wrap {
+        padding: 32px 18px 80px;
+      }
+      .content-wrap h1 {
+        font-size: 1.75rem;
+      }
+      .content-wrap h2 {
+        font-size: 1.35rem;
+        margin-top: 36px;
+      }
+      .content-wrap h3 {
+        font-size: 1.15rem;
+        margin-top: 36px;
+      }
+      .callout {
+        padding: 16px 18px;
+      }
+      .footer-links {
+        gap: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a class="nav-left" href="/">
+      <img class="nav-icon" src="icon.png" alt="Keep Score icon" />
+      <span class="nav-logo-text">Keep Score</span>
+    </a>
+    <div class="nav-right">
+      <a href="/">Home</a>
+      <a href="ratings" class="active">Ratings</a>
+      <a href="privacy">Privacy</a>
+    </div>
+    <button class="hamburger" aria-label="Open menu" onclick="openDrawer()">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </nav>
+
+  <!-- Mobile drawer -->
+  <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+  <div class="drawer" id="drawer">
+    <button class="drawer-close" aria-label="Close menu" onclick="closeDrawer()">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+    </button>
+    <div class="drawer-links">
+      <a href="/">Home</a>
+      <a href="ratings" class="active">Ratings</a>
+      <a href="privacy">Privacy</a>
+      <a href="mailto:evan@forourschool.org">Contact</a>
+    </div>
+  </div>
+
+  <main>
+    <div class="content-wrap">
+
+      <h1>How Ratings Work</h1>
+      <p class="subtitle">
+        Keep Score uses the Glicko-2 rating algorithm to measure your skill over time. Here's what it does, how it works, and why you can trust it.
+      </p>
+
+      <!-- ─── PLAIN ENGLISH ─── -->
+
+      <h3>The short version</h3>
+      <p>
+        Every player starts at <strong>3.0</strong>. After each rated set, your rating moves up or down based on how the result compared to what the system expected given each player's current rating. Your rating is shown after you've played at least 5 rated sets.
+      </p>
+
+      <h3>The set is the unit</h3>
+      <p>
+        A tennis match is rated <strong>set by set</strong>, not as a single result. Each completed set is treated as its own contest, in order, with ratings carrying forward between them. Winning a set off a stronger opponent moves your rating even if you go on to lose the match, which is closer to how players actually judge their own tennis.
+      </p>
+      <p>
+        Only <strong>complete</strong> sets are rated: 6 games winning by two, 7-5, or 7-6. A set that stopped early is still recorded, and the match still appears in your history, but that set is not rated and the match is left out of your win-loss record. Your rating history and the change shown after a match are per match, so a three set match is one entry built from up to three rated contests.
+      </p>
+
+      <div class="callout">
+        <p><strong>Your rating is private.</strong> Only you can see it.</p>
+      </div>
+
+      <h3>When matches are rated</h3>
+      <p>A match is rated automatically when the following are true:</p>
+      <ol>
+        <li>Every player slot is filled by a real, signed-in user.</li>
+        <li>No player has opted out of rating for that match.</li>
+      </ol>
+      <p>
+        If any slot has a placeholder name, the match is saved to your history but doesn't affect anyone's rating. Those placeholders can still be connected afterwards: the person who recorded the match can share a code for 24 hours, and once every spot belongs to a real account the match rates itself.
+      </p>
+
+      <h3>Confidence and consistency</h3>
+      <p>
+        Your rating has a <strong>confidence</strong> level that controls how much it moves each set. When you're new or haven't played in a while, the system is less sure about your rating, so it moves more. As you play more sets, the system gets more confident and your rating stabilizes.
+      </p>
+      <p>
+        The system also tracks how <strong>consistent</strong> your performance is. If your results are all over the place, the system stays less certain and lets your rating keep adjusting. If your results line up with your rating, it locks in faster.
+      </p>
+
+      <h3>Score margins matter</h3>
+      <p>
+        It's not just about winning or losing. The system also looks at how the score compared to what it expected. Losing a close set to a higher-rated player barely hurts you. Winning a set you were expected to lose badly helps a lot.
+      </p>
+
+      <h3>Singles vs. doubles</h3>
+      <p>
+        Your singles rating and doubles rating are tracked separately. They use the same algorithm but are completely independent.
+      </p>
+      <p>
+        In doubles, the expected outcome is based on each team's average rating, not individual ratings. If you and your partner average out to the same level as the other team, the system expects an even set.
+      </p>
+
+      <h3>Boundaries and balance</h3>
+      <p>
+        Your rating can't go below 0. There is no hard cap at the top, but it gets increasingly difficult to push past 6. The system also makes it harder to move further away from the starting point and easier to move back toward it. If you're rated well above or below average, your rating naturally resists going more extreme and is more willing to correct back.
+      </p>
+
+      <h3>Opt out and corrections</h3>
+      <ul>
+        <li><strong>Opt out:</strong> Any player can opt out of rating for a specific match within 24 hours. This makes the match unrated for everyone.</li>
+        <li><strong>Score corrections:</strong> The match logger can edit scores within 5 minutes. After that, the match is final.</li>
+        <li><strong>Reset:</strong> You can reset your rating at any time from your profile. This doesn't affect anyone else's rating history.</li>
+      </ul>
+
+      <hr class="divider" />
+
+      <!-- ─── TECHNICAL DETAILS ─── -->
+
+      <h2>Under the hood</h2>
+      <p>
+        Keep Score uses the <strong>Glicko-2</strong> rating algorithm, an evolution of the Elo system used in chess. It tracks three values per player: <strong>rating</strong> (your skill level), <strong>deviation</strong> (how confident the system is), and <strong>volatility</strong> (how consistent your performance is). All three are updated after every rated set.
+      </p>
+
+      <h3>How deviation works</h3>
+      <div>
+        <p>
+          Deviation controls how much your rating can change per set. A new player's rating will move roughly 6 times more per set than the rating of an established player near 3.0. This is why your first few sets have such a big impact and later sets are more stable.
+        </p>
+        <p>
+          There is a minimum floor in deviation that prevents it from shrinking so low that sets stop mattering. This floor depends on the player's current rating and the direction of the change (see "Asymmetric deviation" below).
+        </p>
+      </div>
+
+      <h3>How volatility works</h3>
+      <div>
+        <p>
+          Volatility is separate from deviation, but feeds into it. After each set, the system checks whether the result was surprising. If you frequently produce unexpected results, your volatility increases, which causes your deviation to grow slightly before each set, which in turn lets your rating move more. A player on a streak of upsets or unexpected losses will have their rating adjust faster than a player whose results match expectations. Once the results settle down, volatility drops and the rating stabilizes again.
+        </p>
+      </div>
+
+      <h3>Soft ceiling</h3>
+      <div>
+        <p>
+          As a player's rating approaches and passes 6.0, gains from each set are progressively reduced. A player at 6.0 gains less than half of what the same win would produce at 5.0, and a player at 7.0 gains only about a seventh. Losses are never reduced, so it is always possible to drop at any rating. A player can exceed 6.0, but each additional point becomes much harder to earn than the last.
+        </p>
+      </div>
+
+      <h3>Asymmetric deviation</h3>
+      <div>
+        <p>
+          The further a player's rating is from 3.0, the harder it is to push even further away and the easier it is to move back toward 3.0. At extreme ratings, the difference is large: a player rated at 1.0 who wins a set can move up to 9 times more than they would move down from a loss of the same magnitude. This works the same way at the top of the scale, where a player at 5.0 drops much more easily than they climb.
+        </p>
+      </div>
+
+      <h3>Inactivity decay</h3>
+      <div>
+        <p>
+          When you haven't played for a while, the system's confidence in your rating gradually decreases. A week or two away has almost no effect. After six months, your first sets back will move your rating noticeably more than they would have before the break. A full year away brings your confidence close to where it was when you started, so your first sets back feel more like your early sets again. It can never go beyond the starting level.
+        </p>
+      </div>
+
+      <hr class="divider" />
+
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="ratings">How Ratings Work</a>
+      <a href="privacy">Privacy Policy</a>
+    </div>
+    <p>&copy; <span id="year"></span> On The Vine Media, LLC. All rights reserved.</p>
+  </footer>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+    function openDrawer() {
+      document.getElementById('drawer').classList.add('open');
+      document.getElementById('drawerOverlay').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeDrawer() {
+      document.getElementById('drawer').classList.remove('open');
+      document.getElementById('drawerOverlay').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+  </script>
+</body>
+</html>

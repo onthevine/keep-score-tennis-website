@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Keep Score: Tennis</title>
+  <meta name="description" content="A private scorebook for tennis. Log any game in under 10 seconds. Private Glicko-2 skill ratings that refine as you play more." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <meta property="og:image" content="featured.jpg" />
+  <meta property="og:image:width" content="1024" />
+  <meta property="og:image:height" content="500" />
+  <meta name="robots" content="all">
+  <link rel="manifest" href="site.webmanifest">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=Quicksand:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --nav-green: #104816;
+      --nav-height: 64px;
+    }
+
+    body {
+      font-family: 'Quicksand', sans-serif;
+      background: #ffffff;
+      min-height: 100vh;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    /* ── NAV ── */
+    nav {
+      background: var(--nav-green);
+      height: var(--nav-height);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.35);
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .nav-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.1);
+      display: block;
+    }
+
+    .nav-logo-text {
+      font-family: 'Nunito', sans-serif;
+      font-weight: 900;
+      font-size: 1.25rem;
+      color: #ffffff;
+      letter-spacing: 0.5px;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+
+    .nav-right a {
+      font-family: 'Quicksand', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.88);
+      text-decoration: none;
+      letter-spacing: 0.3px;
+      transition: color 0.2s;
+    }
+
+    .nav-right a:hover {
+      color: #ffffff;
+    }
+
+    .nav-right a.active {
+      color: #ffffff;
+      border-bottom: 2px solid rgba(255,255,255,0.6);
+      padding-bottom: 2px;
+    }
+
+    /* ── HAMBURGER ── */
+    .hamburger {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 8px;
+      margin-right: -8px;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .hamburger svg {
+      display: block;
+    }
+
+    /* ── MOBILE DRAWER ── */
+    .drawer-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(0,0,0,0.5);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+
+    .drawer-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 260px;
+      max-width: 80vw;
+      background: var(--nav-green);
+      z-index: 201;
+      transform: translateX(100%);
+      transition: transform 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      padding-top: 20px;
+    }
+
+    .drawer.open {
+      transform: translateX(0);
+    }
+
+    .drawer-close {
+      align-self: flex-end;
+      background: none;
+      border: none;
+      padding: 16px 20px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .drawer-close svg {
+      display: block;
+    }
+
+    .drawer-links {
+      display: flex;
+      flex-direction: column;
+      padding: 12px 0;
+    }
+
+    .drawer-links a {
+      font-family: 'Quicksand', sans-serif;
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: rgba(255,255,255,0.88);
+      text-decoration: none;
+      padding: 16px 28px;
+      transition: background 0.15s;
+    }
+
+    .drawer-links a:hover,
+    .drawer-links a:active {
+      background: rgba(255,255,255,0.1);
+      color: #ffffff;
+    }
+
+    .drawer-links a.active {
+      color: #ffffff;
+      background: rgba(255,255,255,0.08);
+      border-left: 3px solid rgba(255,255,255,0.6);
+    }
+
+    /* ── HOME HERO ── */
+    .hero {
+      display: flex;
+      align-items: center;
+      min-height: calc(100vh - var(--nav-height));
+      padding: 60px 80px;
+      gap: 60px;
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    .hero-left {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .hero-headline {
+      font-family: 'Nunito', sans-serif;
+      font-weight: 900;
+      font-size: clamp(2.4rem, 4.5vw, 3.6rem);
+      color: #0e2e12;
+      line-height: 1.15;
+      letter-spacing: -0.5px;
+    }
+
+    .hero-tagline {
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: clamp(1.1rem, 2vw, 1.35rem);
+      color: #104816;
+      line-height: 1.4;
+      letter-spacing: 0.2px;
+    }
+
+    .hero-subtext {
+      font-family: 'Quicksand', sans-serif;
+      font-weight: 400;
+      font-size: clamp(1rem, 1.8vw, 1.15rem);
+      color: #4a5c4d;
+      line-height: 1.7;
+      max-width: 440px;
+    }
+
+    .store-badges {
+      display: flex;
+      gap: 16px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    .store-badge {
+      display: inline-block;
+      text-decoration: none;
+      transition: transform 0.2s, opacity 0.2s;
+    }
+
+    .store-badge:hover {
+      transform: translateY(-2px);
+      opacity: 0.9;
+    }
+
+    .store-badge img {
+      width: 180px;
+      height: auto;
+      display: block;
+    }
+
+    /* ── HERO RIGHT ── */
+    .hero-right {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .court-image {
+      width: 100%;
+      max-width: 480px;
+      display: block;
+      border-radius: 16px;
+      box-sizing: border-box;
+      outline: 2px solid #FFF;
+      outline-offset: -2px;
+    }
+
+    /* ── FEATURES ── */
+    .features {
+      background: #f4f8f4;
+      padding: 80px 32px;
+    }
+
+    .features-inner {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .features-title {
+      font-family: 'Nunito', sans-serif;
+      font-weight: 900;
+      font-size: 1.8rem;
+      color: #0e2e12;
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 32px;
+    }
+
+    .feature-card {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 28px 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .feature-card h3 {
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: #104816;
+      margin-bottom: 8px;
+    }
+
+    .feature-card p {
+      font-family: 'Quicksand', sans-serif;
+      font-weight: 500;
+      font-size: 0.95rem;
+      color: #4a5c4d;
+      line-height: 1.6;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--nav-green);
+      color: rgba(255,255,255,0.7);
+      padding: 32px 24px;
+      text-align: center;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+
+    footer a {
+      color: rgba(255,255,255,0.88);
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    footer a:hover {
+      color: #ffffff;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .hero {
+        flex-direction: column;
+        padding: 40px 28px;
+        text-align: center;
+        align-items: center;
+      }
+      .hero-left {
+        align-items: center;
+      }
+      .hero-subtext {
+        max-width: 100%;
+      }
+      .store-badges {
+        justify-content: center;
+      }
+      .court-image {
+        max-width: 340px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .nav-right {
+        display: none;
+      }
+      .hamburger {
+        display: block;
+      }
+      .features {
+        padding: 48px 20px;
+      }
+      .features-title {
+        font-size: 1.4rem;
+        margin-bottom: 32px;
+      }
+      .features-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+      .feature-card {
+        padding: 22px 20px;
+      }
+      .hero {
+        padding: 32px 20px;
+        gap: 40px;
+      }
+      .store-badge img {
+        width: 160px;
+      }
+      .court-image {
+        max-width: 280px;
+      }
+      .footer-links {
+        gap: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a class="nav-left" href="/">
+      <img class="nav-icon" src="icon.png" alt="Keep Score icon" />
+      <span class="nav-logo-text">Keep Score</span>
+    </a>
+    <div class="nav-right">
+      <a href="/" class="active">Home</a>
+      <a href="ratings">Ratings</a>
+      <a href="privacy">Privacy</a>
+    </div>
+    <button class="hamburger" aria-label="Open menu" onclick="openDrawer()">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </nav>
+
+  <!-- Mobile drawer -->
+  <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+  <div class="drawer" id="drawer">
+    <button class="drawer-close" aria-label="Close menu" onclick="closeDrawer()">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+    </button>
+    <div class="drawer-links">
+      <a href="/" class="active">Home</a>
+      <a href="ratings">Ratings</a>
+      <a href="privacy">Privacy</a>
+      <a href="mailto:evan@forourschool.org">Contact</a>
+    </div>
+  </div>
+
+  <main>
+    <section class="hero">
+
+      <div class="hero-left">
+        <h1 class="hero-headline">Keep Score Tennis</h1>
+        <p class="hero-tagline">Track tennis matches together. Build your rating privately.</p>
+        <p class="hero-subtext">
+          Log any match, set by set, in seconds. When every player is connected in the app, each completed set feeds a private skill rating. Otherwise you can still track results and see trends over time. No public profiles. No leaderboards.
+        </p>
+
+        <div class="store-badges">
+          <a class="store-badge" href="/app" aria-label="Download on the App Store">
+            <img src="apple.svg" alt="Download on the App Store" />
+          </a>
+          <a class="store-badge" href="https://play.google.com/store/apps/details?id=com.onthevinemedia.keepscoretennis" aria-label="Get it on Google Play">
+            <img src="google.svg" alt="Get it on Google Play" />
+          </a>
+        </div>
+      </div>
+
+      <div class="hero-right">
+        <img class="court-image" src="tennis-court.svg" alt="Keep Score tennis court view" />
+      </div>
+
+    </section>
+
+    <section class="features">
+      <div class="features-inner">
+        <h2 class="features-title">Log matches. Build a rating that is just for you.</h2>
+        <div class="features-grid">
+          <div class="feature-card">
+            <h3>Seconds, not minutes</h3>
+            <p>Tap the ball, fill in names, enter each set. Done.</p>
+          </div>
+	      <div class="feature-card">
+	        <h3>Private by default</h3>
+	        <p>No public profiles. No leaderboards. No judgements.</p>
+	      </div>
+	      <div class="feature-card">
+	        <h3>Honest ratings</h3>
+	        <p>Glicko-2 ratings that start uncertain and settle as you play. Every completed set is rated on its own, so the more you log, the truer the number.</p>
+	      </div>
+	      <div class="feature-card">
+	        <h3>No account required</h3>
+	        <p>Start logging immediately. Everything stays on your device. Sign in later to unlock ratings and cloud backup.</p>
+	      </div>
+	      <div class="feature-card">
+	        <h3>Singles and doubles</h3>
+	        <p>Both formats, one tap to switch. Every player rated individually.</p>
+	      </div>
+	      <div class="feature-card">
+	        <h3>Join with a code</h3>
+	        <p>Share a 4-letter code or scan a QR. No friend requests. No setup.</p>
+	      </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="ratings">How Ratings Work</a>
+      <a href="privacy">Privacy Policy</a>
+      <a href="mailto:evan@forourschool.org">Contact</a>
+    </div>
+    <p>&copy; <span id="year"></span> On The Vine Media, LLC. All rights reserved.</p>
+  </footer>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+    function openDrawer() {
+      document.getElementById('drawer').classList.add('open');
+      document.getElementById('drawerOverlay').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeDrawer() {
+      document.getElementById('drawer').classList.remove('open');
+      document.getElementById('drawerOverlay').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+  </script>
+</body>
+</html>
