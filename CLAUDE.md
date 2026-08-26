@@ -83,3 +83,21 @@ worse than the current silence.
 - Function HTML shares one visual style via `lib/store-page.js`. Static pages
   inline their own CSS, matching the app's palette: green `#537D45`, court
   blue `#3F76B0`, optic yellow `#E9F75E`, ink `#1A1A1A`.
+
+## Porting this to pickleball
+
+The pickleball site already has `/app` and `/court/*` and the same two
+`.well-known` files, so the web half is mostly there. What it is missing is
+the app half plus the two newer routes:
+
+1. Add `functions/claim/[code].js` (once pickleball has a claim feature) and
+   `functions/join-game.js`, and add those paths to
+   `.well-known/apple-app-site-association`. Consider refactoring its two
+   existing Functions onto a shared `lib/store-page.js` first, the way this
+   repo does, so the pages cannot drift apart.
+2. In the pickleball app: add the equivalent of `lib/links.ts` and route every
+   QR through it, then enable the matching `intentFilters` for the new paths.
+   Its `associatedDomains` already covers `/court/*`.
+3. Same switchover order as here: deploy, verify the AASA content type, flip
+   the switch, ship a fresh native build (iOS reads the AASA file at install
+   time).
