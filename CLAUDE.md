@@ -7,10 +7,13 @@ structurally alike so a fix in one is obvious to port to the other.
 
 ## App identifiers
 
-- iOS App Store: not published yet. `APP_STORE_ID` in `lib/store-page.js` is
-  empty, and the fallback pages say "Coming soon to the App Store" rather than
-  redirecting to a dead URL. Fill it in at release.
+- iOS App Store: `https://apps.apple.com/app/id6804699922` (Apple ID
+  `6804699922`, SKU `com.onthevinemedia.keepscoretennis`). Set as
+  `APP_STORE_ID` in `lib/store-page.js`; the fallback pages redirect iOS
+  visitors straight to it.
 - Google Play: `https://play.google.com/store/apps/details?id=com.onthevinemedia.keepscoretennis`
+  — **not live yet**, so that URL 404s. The hero badge and the Android
+  redirect in `lib/store-page.js` still point at it.
 - iOS appID (Team plus bundle): `2A76QQ868A.com.onthevinemedia.keepscoretennis`
 - Android package: `com.onthevinemedia.keepscoretennis`
 - Domain: `keepscore-tennis.pages.dev`, hardcoded in the app at

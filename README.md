@@ -50,21 +50,23 @@ because anything inside that directory becomes a route.
 
 ## Before this actually works
 
-Three things, in order. Missing any one of them means an HTTPS QR opens Safari
-on this page instead of opening the app   which is why the app still emits
-custom-scheme QRs until they are done.
+Three things had to be true before an HTTPS QR could open the app instead of
+landing someone in Safari. All three are now done:
 
 1. **Deploy this site** to the domain above.
-2. **`APP_STORE_ID`** in `lib/store-page.js`   empty today, because the app has
-   no listing yet. While it is empty the page honestly says "Coming soon to the
-   App Store" instead of bouncing people to a dead URL. Fill it in at release.
-3. **In the app repo**: uncomment `ios.associatedDomains` (and the Android
-   `intentFilters`) in `app.config.js`, flip `USE_UNIVERSAL_LINKS` to `true` in
-   `lib/links.ts`, then prebuild and make a fresh native build. iOS fetches the
-   AASA file at **install time**, so an existing build will not pick it up.
+2. **`APP_STORE_ID`** in `lib/store-page.js` — `6804699922`. iOS visitors
+   without the app are redirected to the App Store listing.
+3. **In the app repo**: `ios.associatedDomains` and the Android
+   `intentFilters` are set in `app.config.js`, and `USE_UNIVERSAL_LINKS` is
+   `true` in `lib/links.ts`. iOS fetches the AASA file at **install time**, so
+   any build made before the site went live has to be reinstalled.
 
-`.well-known/assetlinks.json` still carries a placeholder fingerprint; replace
-it with the tennis upload cert's SHA-256 when the Android build exists.
+Still open, on the Android side only: the Play listing is not live yet, so the
+Play badge on `index.html` and the Android redirect in `lib/store-page.js`
+point at a URL that 404s until it is. `.well-known/assetlinks.json` also still
+carries a placeholder fingerprint — replace it with the tennis upload cert's
+SHA-256 when the Android build exists, or Android App Links will not verify and
+those URLs open in the browser.
 
 ## Sibling
 
